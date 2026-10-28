@@ -18,13 +18,12 @@
 #show: ieee.with(
   title: [Studi Ablasi RNN, LSTM, dan GRU dibandingkan ANN untuk Prediksi Trafik Seluler Kota Milan],
   abstract: [
-    #petunjuk[150–200 kata. Tuliskan: masalah (prediksi trafik internet per jam), data (Telecom Italia, kotak Duomo dan lokasi kelompok), apa yang diuji (ablasi faktor apa saja, 3 seed), temuan utama dengan angka (misalnya "GRU terbaik dengan test MAE $x plus.minus y$, turun $z$ % dari acuan"), dan satu kalimat kesimpulan.]
+    Prediksi trafik internet per jam membantu operator memahami kebutuhan kapasitas jaringan. Penelitian ini membandingkan ANN, RNN, LSTM, dan GRU menggunakan data trafik seluler Milan dari Telecom Italia, pada kotak Duomo dan lokasi kelompok di Bandara Linate. Eksperimen ablasi menguji panjang jendela, ukuran hidden, jumlah lapisan, laju pembelajaran, kelompok fitur, dropout, fungsi loss, dan patience. Data dibagi kronologis menjadi train, validasi, test, dan periode Natal. Setiap konfigurasi final dievaluasi dengan tiga seed; pemilihan konfigurasi memakai MAE validasi, sedangkan test dan minggu Natal digunakan untuk evaluasi akhir. Pada Duomo, konfigurasi terpilih menurunkan test MAE LSTM dari $273.6 plus.minus 25.4$ menjadi $254.2 plus.minus 27.3$ dan ANN dari $309.9 plus.minus 5.9$ menjadi $303.2 plus.minus 21.9$. Perubahan konfigurasi RNN sedikit memperburuk test MAE, sedangkan peningkatan GRU kecil. Di Bandara Linate, model tetap mengungguli baseline naif nilai terakhir pada minggu test, tetapi tidak pada minggu Natal. Hasil menunjukkan bahwa pengaruh hyperparameter bergantung pada arsitektur; konfigurasi terpilih tidak selalu mengungguli acuan, sehingga seleksi berbasis validasi perlu dikonfirmasi pada beberapa seed dan periode uji.
   ],
   // Satu entri per anggota (maks. 3). Hapus yang tidak dipakai.
   authors: (
-    (name: "Nama Anggota 1", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
-    (name: "Nama Anggota 2", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
-    (name: "Nama Anggota 3", department: [NIM 1221400xx], organization: [Teknik Telekomunikasi, ITERA], email: "email@student.itera.ac.id"),
+    (name: "Muhamad Aditia Dwi Pratama", department: [NIM 124400015], organization: [Teknik Telekomunikasi, ITERA], email: "muhamad.124400015@student.itera.ac.id"),
+    (name: "Jonatan Kristian Sitorus", department: [NIM 124400067], organization: [Teknik Telekomunikasi, ITERA], email: "jonatan.124400067@student.itera.ac.id"),
   ),
   index-terms: ("prediksi trafik seluler", "RNN", "LSTM", "GRU", "studi ablasi"),
   bibliography: bibliography("references.bib", title: [Pustaka]),
@@ -32,12 +31,12 @@
 )
 
 = Pendahuluan
-#petunjuk[Mengapa operator perlu meramal trafik per sel? Mengapa model sekuensial (RNN, LSTM @hochreiter1997lstm, GRU @cho2014gru) dibandingkan dengan ANN? Apa itu studi ablasi dan mengapa penting? Tutup dengan daftar kontribusi laporan ini (2–3 butir). Maks. 0,5 kolom.]
+Trafik seluler berubah menurut waktu dan lokasi, sehingga peramalan yang akurat dapat membantu perencanaan kapasitas jaringan. ANN menyediakan pembanding non-rekuren, sedangkan RNN, LSTM, dan GRU membaca urutan waktu; LSTM dirancang untuk membawa informasi jangka panjang @hochreiter1997lstm dan GRU menggunakan gerbang yang lebih ringkas @cho2014gru. Studi ablasi mengukur sensitivitas hasil terhadap perubahan satu faktor pada satu waktu. Kontribusi studi ini adalah membandingkan empat arsitektur, mengevaluasi konfigurasi ablasi, dan menguji konfigurasi terpilih di lokasi berbeda serta pada minggu Natal.
 
 = Data dan Metode
 
 == Dataset
-#petunjuk[Telecom Italia Big Data Challenge @barlacchi2015milan, versi per jam dari @zhang2021fedda: periode, resolusi, fitur. Sebutkan kotak Duomo (5060) dan lokasi kelompok (kode, nama, nomor kotak). @fig:peta boleh dipakai.]
+Eksperimen menggunakan versi agregat per jam dari data Telecom Italia Big Data Challenge @barlacchi2015milan yang disiapkan untuk prediksi trafik @zhang2021fedda. Data mencakup November–Desember 2013. Target adalah volume trafik internet (`net`); fitur tambahan meliputi trafik panggilan dan SMS serta representasi siklik jam dan hari. Eksperimen utama menggunakan kotak Duomo (5060), sedangkan generalisasi diuji pada lokasi kelompok kode 5, Bandara Linate (kotak 15).
 
 #figure(
   image("gambar/peta_lokasi_tugas.png", width: 85%),
@@ -46,10 +45,10 @@
 ) <fig:peta>
 
 == Pembagian Data dan Praproses
-#petunjuk[Pembagian berdasarkan waktu (train / val / test / Natal), standarisasi dengan statistik sebelum minggu validasi, _windowing_. Jelaskan mengapa data deret waktu tidak boleh diacak.]
+Pembagian dilakukan kronologis: train 11 November–8 Desember, validasi 9–15 Desember, test 16–22 Desember, dan evaluasi Natal 23–29 Desember 2013. Fitur distandarisasi menggunakan statistik data sebelum validasi. Jendela sepanjang $W$ jam digunakan untuk memprediksi trafik satu jam berikutnya ($horizon=1$). Pemisahan waktu dipertahankan agar informasi masa depan tidak bocor ke data train.
 
 == Model dan Konfigurasi Acuan
-#petunjuk[Uraikan ANN, RNN, LSTM, GRU secara singkat (tanpa menyalin slide). Sajikan konfigurasi acuan dalam @tab:acuan.]
+ANN menerima jendela yang diratakan sebagai satu vektor; RNN, LSTM, dan GRU membaca fitur sebagai urutan waktu dan menggunakan representasi pada langkah terakhir untuk prediksi. Konfigurasi acuan menggunakan $W=24$, horizon satu jam, seluruh fitur, Adam dengan laju pembelajaran $10^(-3)$, batch 64, dan early stopping dengan patience 30. Ukuran hidden dan kedalaman tiap arsitektur ditampilkan pada @tab:acuan.
 
 #figure(
   caption: [Konfigurasi acuan],
@@ -74,59 +73,146 @@
 ) <tab:acuan>
 
 == Protokol Ablasi dan Evaluasi
-#petunjuk[Satu faktor diubah setiap kali; daftar faktor dan nilainya (A1–A5 dan dua faktor B pilihan kalian beserta hipotesis awal). Setiap konfigurasi dilatih dengan 3 seed; dilaporkan rata-rata $plus.minus$ simpangan baku. Metrik: MAE, RMSE, MAPE pada skala asli. Pemilihan konfigurasi terbaik memakai val MAE. Sebutkan perangkat yang dipakai (CPU/GPU) dan total waktu training.]
+Pada A1–A5, satu faktor diubah terhadap acuan: $W in {6, 12, 24, 48, 168}$, hidden ${16, 32, 64, 128}$, lapisan ${1, 2, 3}$, laju pembelajaran ${10^(-4), 10^(-3), 10^(-2)}$, serta empat kelompok fitur. Bagian B menguji dropout ${0, 0.2, 0.5}$, loss {MSE, MAE, Huber}, dan patience ${10, 30, 60}$. Hipotesis B2 adalah dropout sedang dapat mengurangi overfitting; B4 menguji apakah loss yang selaras dengan MAE meningkatkan metrik tersebut. Setiap konfigurasi final menggunakan tiga seed. MAE, RMSE, dan MAPE dihitung pada skala asli; konfigurasi dipilih berdasarkan rata-rata MAE validasi, bukan test. Eksperimen dijalankan pada CPU dengan PyTorch 2.14.1; total waktu training tercatat 89.9 menit untuk 420 run unik.
 
 = Hasil
 
 == Baseline Naif dan Acuan
-#petunjuk[Tabel baseline naif dan hasil konfigurasi acuan (Bagian 0).]
-
-== Ablasi Wajib
-#petunjuk[Satu subbagian atau paragraf per faktor A1–A5. Gunakan grafik dari folder `hasil/` (boleh digabung beberapa dalam satu gambar agar hemat tempat) dan tabel seperti @tab:contoh. Setiap gambar dan tabel harus dirujuk dan dibahas di teks.]
+Pada horizon satu jam di test Duomo, semua model acuan mengungguli tiga baseline naif. Namun, pada periode Natal, MAE beberapa model kembali lebih tinggi daripada baseline nilai terakhir.
 
 #figure(
-  caption: [Contoh format: pengaruh panjang jendela $W$ terhadap test MAE (rata-rata $plus.minus$ simpangan baku, 3 seed). Angka di bawah hanya contoh.],
+  caption: [MAE test baseline naif dan model acuan di Duomo, horizon satu jam.],
+  placement: top,
+  table(
+    columns: 2,
+    align: (left, right),
+    stroke: none,
+    table.hline(),
+    table.header([*Metode*], [*Test MAE*]),
+    table.hline(stroke: 0.5pt),
+    [Naif: nilai terakhir], [600.9],
+    [Naif: kemarin], [552.2],
+    [Naif: minggu lalu], [467.6],
+    [ANN acuan], [$309.9 plus.minus 5.9$],
+    [RNN acuan], [$229.6 plus.minus 5.1$],
+    [LSTM acuan], [$273.6 plus.minus 25.4$],
+    [GRU acuan], [$237.2 plus.minus 9.3$],
+    table.hline(),
+  ),
+) <tab:baseline>
+
+== Ablasi Wajib
+Pada A1, jendela lebih panjang tidak selalu membantu. ANN memperoleh validasi terbaik pada $W=6$ (MAE 212.4), sedangkan RNN terbaik pada $W=48$ (200.1); test MAE RNN pada $W=48$ adalah $224.5 plus.minus 11.7$. Pada ANN, $W=168$ memperbesar parameter menjadi 38,753 dan menghasilkan test MAE 402.0, menunjukkan risiko jendela terlalu panjang.
+
+#figure(
+  image("../hasil/A1_W.png", width: 100%),
+  caption: [Pengaruh panjang jendela terhadap MAE pada validasi dan test; garis menunjukkan rata-rata tiga seed.],
+  placement: top,
+) <fig:a1>
+
+Pada A2, hidden 128 memberi validasi terbaik untuk GRU (188.7) dan LSTM (207.1), tetapi menambah parameter secara tajam. ANN juga membaik pada hidden 128 dibanding hidden 32, sementara RNN relatif stabil pada hidden 64–128. Pada A3, tiga lapisan memperburuk LSTM secara kuat (test MAE 412.6); RNN satu atau dua lapisan lebih baik daripada tiga lapisan. GRU dua lapisan sedikit menurunkan MAE validasi, tetapi tidak memperbaiki test.
+
+A4 menunjukkan laju $10^(-4)$ tidak memadai: semua arsitektur menghasilkan validasi jauh lebih buruk. Laju $10^(-2)$ membantu LSTM dan GRU pada validasi, tetapi tidak menjadi pilihan terbaik untuk ANN atau RNN. Grafik @fig:a4 memperlihatkan efek ini.
+
+#figure(
+  image("../hasil/A4_lr.png", width: 100%),
+  caption: [Pengaruh laju pembelajaran terhadap MAE.],
+  placement: top,
+) <fig:a4>
+
+Pada A5, `semua` menjadi fitur terbaik pada validasi untuk RNN (206.1), LSTM (230.5), dan GRU (207.5); ANN sedikit lebih baik dengan `net+waktu` (246.0) daripada `semua` (248.9). Artinya kontribusi fitur waktu dan trafik panggilan/SMS bergantung pada arsitektur.
+
+== Ablasi Pilihan
+Pada B2, dropout 0.5 memperburuk MAE untuk semua model. Dropout 0.2 hanya membantu GRU: validasi/test MAE menjadi 203.9/225.0 dibanding 207.5/237.2 pada dropout 0. Untuk ANN dan RNN, dropout 0 memberi validasi terbaik; LSTM juga hampir tidak berubah antara 0 dan 0.2. Dengan demikian, hipotesis bahwa regularisasi sedang membantu tidak berlaku umum.
+
+#figure(
+  image("../hasil/B2_dropout.png", width: 100%),
+  caption: [Pengaruh dropout terhadap MAE pada validasi dan test.],
+  placement: top,
+) <fig:b2>
+
+Pada B4, pilihan loss terbaik menurut MAE validasi berbeda antar model: MAE untuk ANN (240.6) dan GRU (204.2), MSE untuk LSTM (230.5), sedangkan RNN hampir seri antara MSE (206.1) dan Huber (206.3). Evaluasi test tidak selalu mengikuti peringkat validasi sehingga tidak digunakan untuk memilih konfigurasi. B5 menunjukkan patience 10, 30, dan 60 juga tidak memiliki pemenang universal: 30 terbaik untuk validasi RNN, sedangkan 60 terbaik untuk LSTM dan GRU.
+
+#figure(
+  image("../hasil/B4_loss.png", width: 100%),
+  caption: [Perbandingan fungsi loss; pemilihan model tetap berdasarkan MAE validasi.],
+  placement: top,
+) <fig:b4>
+
+== Konfigurasi Terbaik
+Konfigurasi per model dipilih berdasarkan MAE validasi. ANN menggunakan $W=24$, hidden 128, dua lapisan, dan MSE; RNN menggunakan $W=24$, hidden 68, tiga lapisan, dan Huber; LSTM menggunakan $W=12$, hidden 64, satu lapisan, dan MSE; GRU menggunakan $W=6$, hidden 128, satu lapisan, dan Huber. Semua memakai fitur `semua`, dropout 0, dan laju pembelajaran yang terpilih pada ablasi.
+
+Tabel @tab:c menunjukkan LSTM memperoleh penurunan test MAE terbesar, dari 273.6 menjadi 254.2. ANN dan GRU hanya membaik sedikit, sedangkan konfigurasi RNN terpilih sedikit lebih buruk daripada acuan. Hasil Natal membaik untuk ANN, RNN, dan GRU, tetapi simpangan baku LSTM meningkat.
+
+#figure(
+  caption: [Test MAE dan MAE Natal konfigurasi acuan dibandingkan konfigurasi terpilih; rata-rata $plus.minus$ simpangan baku tiga seed.],
   placement: top,
   table(
     columns: 5,
     align: (left, center, center, center, center),
     stroke: none,
     table.hline(),
-    table.header([*$W$ (jam)*], [*ANN*], [*RNN*], [*LSTM*], [*GRU*]),
+    table.header([*Model*], [*Test acuan*], [*Test terpilih*], [*Natal acuan*], [*Natal terpilih*]),
     table.hline(stroke: 0.5pt),
-    [6], [$000 plus.minus 00$], [$000 plus.minus 00$], [$000 plus.minus 00$], [$000 plus.minus 00$],
-    [24], [$000 plus.minus 00$], [$bold(000 plus.minus 00)$], [$000 plus.minus 00$], [$000 plus.minus 00$],
-    [168], [$000 plus.minus 00$], [$000 plus.minus 00$], [$000 plus.minus 00$], [$000 plus.minus 00$],
+    [ANN], [$309.9 plus.minus 5.9$], [$303.2 plus.minus 21.9$], [$680.1 plus.minus 52.0$], [$655.5 plus.minus 43.4$],
+    [RNN], [$229.6 plus.minus 5.1$], [$233.0 plus.minus 12.3$], [$421.2 plus.minus 2.4$], [$416.4 plus.minus 9.4$],
+    [LSTM], [$273.6 plus.minus 25.4$], [$254.2 plus.minus 27.3$], [$586.0 plus.minus 56.8$], [$530.5 plus.minus 71.8$],
+    [GRU], [$237.2 plus.minus 9.3$], [$235.1 plus.minus 7.4$], [$468.2 plus.minus 21.8$], [$446.6 plus.minus 31.2$],
     table.hline(),
   ),
-) <tab:contoh>
+) <tab:c>
 
-== Ablasi Pilihan
-#petunjuk[Dua faktor B pilihan kalian: hipotesis awal, hasil, dan apakah hipotesis terbukti.]
-
-== Konfigurasi Terbaik
-#petunjuk[Konfigurasi terbaik tiap model (dipilih dengan val MAE), lalu hasilnya pada minggu test dan Natal dibandingkan dengan acuan dan baseline naif.]
+#figure(
+  image("../hasil/C_terbaik_vs_acuan.png", width: 100%),
+  caption: [Perbandingan test MAE konfigurasi acuan dan terpilih di Duomo.],
+  placement: top,
+) <fig:c>
 
 == Uji Generalisasi
-#petunjuk[Hasil acuan vs terbaik di lokasi kelompok. Apakah urutan model berubah? Kaitkan dengan pola trafik lokasi tersebut.]
+Di Bandara Linate, baseline naif nilai terakhir menghasilkan test MAE 10.1 dan Natal 7.1. Semua model lebih baik daripada baseline pada minggu test, tetapi tidak pada Natal. Konfigurasi terpilih tidak memperbaiki semua arsitektur: GRU tetap sekitar 7.5, LSTM membaik tipis dari 8.2 ke 8.1, sedangkan ANN dan RNN memburuk. Perubahan ini memperlihatkan bahwa konfigurasi yang dipilih di Duomo tidak otomatis berpindah sempurna ke lokasi lain.
+
+#figure(
+  caption: [Test dan Natal MAE di Bandara Linate untuk acuan dan konfigurasi terpilih; rata-rata $plus.minus$ simpangan baku tiga seed.],
+  placement: top,
+  table(
+    columns: 5,
+    align: (left, center, center, center, center),
+    stroke: none,
+    table.hline(),
+    table.header([*Model*], [*Test acuan*], [*Test terpilih*], [*Natal acuan*], [*Natal terpilih*]),
+    table.hline(stroke: 0.5pt),
+    [ANN], [$8.8 plus.minus 0.7$], [$9.1 plus.minus 0.6$], [$14.4 plus.minus 0.5$], [$14.1 plus.minus 1.1$],
+    [RNN], [$7.5 plus.minus 0.1$], [$7.9 plus.minus 0.5$], [$10.8 plus.minus 0.1$], [$11.1 plus.minus 0.7$],
+    [LSTM], [$8.2 plus.minus 0.2$], [$8.1 plus.minus 0.2$], [$12.8 plus.minus 0.8$], [$13.0 plus.minus 1.2$],
+    [GRU], [$7.5 plus.minus 0.2$], [$7.5 plus.minus 0.2$], [$11.4 plus.minus 0.9$], [$11.0 plus.minus 0.8$],
+    table.hline(),
+  ),
+) <tab:d>
+
+#figure(
+  image("../hasil/D_pola_lokasi.png", width: 100%),
+  caption: [Pola trafik internet per jam pada Duomo dan Bandara Linate.],
+  placement: top,
+) <fig:d>
 
 = Pembahasan
-#petunjuk[Bagian terpenting. Jangan hanya mengulang angka: jelaskan _mengapa_. Hyperparameter mana yang paling berpengaruh dan mana yang tidak? Apakah perbedaan antar model lebih besar daripada perbedaan antar seed? Apa keterbatasan studi ini (satu kota, 4 minggu train, satu kali pembagian waktu)?]
+Hasil ablasi memperlihatkan bahwa pengaruh hyperparameter bergantung pada arsitektur. Jendela panjang meningkatkan jumlah parameter ANN dan memperburuk hasilnya, sedangkan model rekuren relatif stabil pada beberapa panjang jendela. Penambahan lapisan sangat merugikan LSTM pada data yang terbatas. Dropout tinggi juga menambah bias dan menurunkan akurasi; manfaat dropout 0.2 hanya tampak pada GRU. Perubahan konfigurasi gabungan meningkatkan LSTM paling jelas, tetapi tidak memperbaiki RNN dan hanya sedikit mengubah ANN/GRU. Ini menegaskan bahwa memilih hyperparameter dari hasil satu faktor tidak menjamin kombinasi tersebut menjadi optimum.
+
+Keterbatasan studi meliputi satu pembagian kronologis, rentang train sekitar empat minggu, satu kota utama, dan satu lokasi generalisasi. Evaluasi Natal menunjukkan perubahan pola musiman yang tidak seluruhnya ditangkap model. Karena itu, hasil lebih tepat dianggap sebagai perbandingan pada periode yang diuji, bukan jaminan performa untuk semua sel dan musim.
 
 = Kesimpulan
-#petunjuk[3–5 kalimat yang menjawab pertanyaan studi, dengan angka.]
+Studi ini menunjukkan bahwa pengaruh ablasi berbeda antar arsitektur. Konfigurasi terpilih menurunkan test MAE LSTM di Duomo dari $273.6 plus.minus 25.4$ menjadi $254.2 plus.minus 27.3$, sementara RNN sedikit memburuk dan peningkatan ANN/GRU kecil. Semua model mengungguli baseline naif nilai terakhir pada test Bandara Linate, tetapi tidak pada periode Natal. Pemilihan konfigurasi sebaiknya dilakukan dengan MAE validasi dan diuji ulang pada beberapa seed serta periode.
 
 #heading(numbering: none)[Kontribusi Anggota]
 #table(
   columns: (auto, 1fr),
   stroke: none,
-  [Nama Anggota 1], petunjuk[contoh: Bagian A1–A3, penulisan Hasil],
-  [Nama Anggota 2], petunjuk[...],
-  [Nama Anggota 3], petunjuk[...],
+  [Muhamad Aditia Dwi Pratama], [Eksperimen, analisis, dan penyusunan laporan secara kolaboratif.],
+  [Jonatan Kristian Sitorus], [Eksperimen, analisis, dan penyusunan laporan secara kolaboratif.],
 )
 
 #heading(numbering: none)[Pernyataan Penggunaan AI]
-#petunjuk[Tuliskan alat AI yang dipakai (misalnya ChatGPT, Claude, Copilot) dan untuk apa (memperbaiki kode, merapikan bahasa, dll.). Bila tidak memakai, tulis "Tidak ada." Seluruh angka harus berasal dari run kalian sendiri.]
+GitHub Copilot digunakan untuk membantu penyuntingan kode dan penyusunan draf bahasa laporan. Seluruh angka eksperimen diambil dari hasil run notebook kelompok.
 
 #heading(numbering: none)[Kode dan Data]
-Kode, notebook beserta output, dan seluruh hasil run tersedia di #link("https://github.com/username/nama-repo").
+Kode, notebook beserta output, dan seluruh hasil run disertakan dalam repositori proyek kelompok. Data bersumber dari Telecom Italia Big Data Challenge @barlacchi2015milan.
