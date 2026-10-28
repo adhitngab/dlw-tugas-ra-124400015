@@ -39,7 +39,7 @@ Trafik seluler berubah menurut waktu dan lokasi, sehingga peramalan yang akurat 
 Eksperimen menggunakan versi agregat per jam dari data Telecom Italia Big Data Challenge @barlacchi2015milan yang disiapkan untuk prediksi trafik @zhang2021fedda. Data mencakup November–Desember 2013. Target adalah volume trafik internet (`net`); fitur tambahan meliputi trafik panggilan dan SMS serta representasi siklik jam dan hari. Eksperimen utama menggunakan kotak Duomo (5060), sedangkan generalisasi diuji pada lokasi kelompok kode 5, Bandara Linate (kotak 15).
 
 #figure(
-  image("gambar/peta_lokasi_tugas.png", width: 85%),
+  image("peta_lokasi_tugas.png", width: 85%),
   caption: [Rata-rata aktivitas internet per kotak di Milan. Lingkaran kuning: lokasi tugas (kode 0–9); lingkaran toska: Duomo.],
   placement: top,
 ) <fig:peta>
@@ -105,7 +105,7 @@ Pada horizon satu jam di test Duomo, semua model acuan mengungguli tiga baseline
 Pada A1, jendela lebih panjang tidak selalu membantu. ANN memperoleh validasi terbaik pada $W=6$ (MAE 212.4), sedangkan RNN terbaik pada $W=48$ (200.1); test MAE RNN pada $W=48$ adalah $224.5 plus.minus 11.7$. Pada ANN, $W=168$ memperbesar parameter menjadi 38,753 dan menghasilkan test MAE 402.0, menunjukkan risiko jendela terlalu panjang.
 
 #figure(
-  image("../hasil/A1_W.png", width: 100%),
+  image("A1_W.png", width: 100%),
   caption: [Pengaruh panjang jendela terhadap MAE pada validasi dan test; garis menunjukkan rata-rata tiga seed.],
   placement: top,
 ) <fig:a1>
@@ -115,7 +115,7 @@ Pada A2, hidden 128 memberi validasi terbaik untuk GRU (188.7) dan LSTM (207.1),
 A4 menunjukkan laju $10^(-4)$ tidak memadai: semua arsitektur menghasilkan validasi jauh lebih buruk. Laju $10^(-2)$ membantu LSTM dan GRU pada validasi, tetapi tidak menjadi pilihan terbaik untuk ANN atau RNN. Grafik @fig:a4 memperlihatkan efek ini.
 
 #figure(
-  image("../hasil/A4_lr.png", width: 100%),
+  image("A4_lr.png", width: 100%),
   caption: [Pengaruh laju pembelajaran terhadap MAE.],
   placement: top,
 ) <fig:a4>
@@ -126,7 +126,7 @@ Pada A5, `semua` menjadi fitur terbaik pada validasi untuk RNN (206.1), LSTM (23
 Pada B2, dropout 0.5 memperburuk MAE untuk semua model. Dropout 0.2 hanya membantu GRU: validasi/test MAE menjadi 203.9/225.0 dibanding 207.5/237.2 pada dropout 0. Untuk ANN dan RNN, dropout 0 memberi validasi terbaik; LSTM juga hampir tidak berubah antara 0 dan 0.2. Dengan demikian, hipotesis bahwa regularisasi sedang membantu tidak berlaku umum.
 
 #figure(
-  image("../hasil/B2_dropout.png", width: 100%),
+  image("B2_dropout.png", width: 100%),
   caption: [Pengaruh dropout terhadap MAE pada validasi dan test.],
   placement: top,
 ) <fig:b2>
@@ -134,7 +134,7 @@ Pada B2, dropout 0.5 memperburuk MAE untuk semua model. Dropout 0.2 hanya memban
 Pada B4, pilihan loss terbaik menurut MAE validasi berbeda antar model: MAE untuk ANN (240.6) dan GRU (204.2), MSE untuk LSTM (230.5), sedangkan RNN hampir seri antara MSE (206.1) dan Huber (206.3). Evaluasi test tidak selalu mengikuti peringkat validasi sehingga tidak digunakan untuk memilih konfigurasi. B5 menunjukkan patience 10, 30, dan 60 juga tidak memiliki pemenang universal: 30 terbaik untuk validasi RNN, sedangkan 60 terbaik untuk LSTM dan GRU.
 
 #figure(
-  image("../hasil/B4_loss.png", width: 100%),
+  image("B4_loss.png", width: 100%),
   caption: [Perbandingan fungsi loss; pemilihan model tetap berdasarkan MAE validasi.],
   placement: top,
 ) <fig:b4>
@@ -163,7 +163,7 @@ Tabel @tab:c menunjukkan LSTM memperoleh penurunan test MAE terbesar, dari 273.6
 ) <tab:c>
 
 #figure(
-  image("../hasil/C_terbaik_vs_acuan.png", width: 100%),
+  image("C_terbaik_vs_acuan.png", width: 100%),
   caption: [Perbandingan test MAE konfigurasi acuan dan terpilih di Duomo.],
   placement: top,
 ) <fig:c>
@@ -190,7 +190,7 @@ Di Bandara Linate, baseline naif nilai terakhir menghasilkan test MAE 10.1 dan N
 ) <tab:d>
 
 #figure(
-  image("../hasil/D_pola_lokasi.png", width: 100%),
+  image("D_pola_lokasi.png", width: 100%),
   caption: [Pola trafik internet per jam pada Duomo dan Bandara Linate.],
   placement: top,
 ) <fig:d>
